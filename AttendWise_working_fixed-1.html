@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AttendWise - Attendance Calculator</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,sans-serif;color:#fff;background:linear-gradient(135deg,#07111f,#102a43,#172554);min-height:100vh;padding:22px}
+.container{max-width:1050px;margin:auto}
+.hero{text-align:center;padding:28px 10px}
+.logo{font-size:44px;font-weight:800;background:linear-gradient(90deg,#38bdf8,#a78bfa);-webkit-background-clip:text;color:transparent}
+.hero p{color:#cbd5e1;margin-top:8px}
+.card{background:rgba(15,23,42,.93);border:1px solid #263550;border-radius:22px;padding:25px;margin-bottom:18px;box-shadow:0 15px 40px #0004}
+h2{margin:0 0 20px}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:17px}
+label{display:block;color:#cbd5e1;font-size:14px;margin-bottom:8px}
+select,input{width:100%;padding:14px;border-radius:12px;border:1px solid #334155;background:#0f172a;color:#fff;font-size:15px;outline:none}
+button{width:100%;margin-top:20px;padding:16px;border:0;border-radius:14px;background:linear-gradient(90deg,#0ea5e9,#8b5cf6);color:white;font-size:17px;font-weight:bold;cursor:pointer}
+button:hover{opacity:.9}
+.results{display:none}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:15px}
+.stat{background:#111c32;border:1px solid #263550;border-radius:16px;padding:20px}
+.small{color:#94a3b8;font-size:13px}
+.value{font-size:29px;font-weight:800;margin-top:8px}
+.green{color:#4ade80}.blue{color:#38bdf8}.yellow{color:#facc15}
+.status{display:inline-block;margin-top:17px;padding:8px 15px;border-radius:20px;font-weight:bold}
+.safe{background:#12351f;color:#4ade80}.warning{background:#3b3210;color:#facc15}.danger{background:#421725;color:#fb7185}
+.progress-bg{height:15px;background:#1e293b;border-radius:20px;overflow:hidden;margin-top:13px}
+.progress{height:100%;width:0;background:linear-gradient(90deg,#22c55e,#38bdf8);transition:.5s}
+.details{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+.info{background:#111c32;border-radius:15px;padding:18px}
+.info b{display:block;margin-top:7px;font-size:19px}
+.analysis{color:#cbd5e1;line-height:1.7}
+.note{font-size:13px;color:#94a3b8;margin-top:10px}
+.footer{text-align:center;color:#64748b;padding:12px}
+@media(max-width:700px){.grid,.stats,.details{grid-template-columns:1fr}.logo{font-size:36px}}
+</style>
+</head>
+<body>
+<div class="container">
+
+<div class="hero">
+  <div class="logo">AttendWise</div>
+  <p>Smart Semester Attendance Calculator</p>
+</div>
+
+<div class="card">
+<h2>🎓 Student & Semester Details</h2>
+
+<div class="grid">
+<div>
+<label>Department</label>
+<select id="department">
+<option value="">Select Department</option>
+<option>CSE</option><option>ECE</option><option>BME</option><option>AI & DS</option>
+</select>
+</div>
+
+<div>
+<label>Year / Semester</label>
+<select id="semester">
+<option value="">Select Semester</option>
+<option>I Semester</option>
+<option>II Semester</option>
+<option>III Semester</option>
+<option>IV Semester</option>
+<option>V Semester</option>
+<option>VI Semester</option>
+<option>VII Semester</option>
+<option>VIII Semester</option>
+</select>
+</div>
+
+<div>
+<label>Section</label>
+<select id="section">
+<option value="">Select Section</option>
+<option>A</option><option>B</option><option>C</option>
+</select>
+</div>
+
+<div>
+<label>Subject</label>
+<select id="subject">
+<option value="">Select Subject</option>
+<option>Engineering Mathematics</option>
+<option>Programming in C++</option>
+<option>Engineering Chemistry</option>
+<option>English</option>
+<option>Data Structures</option>
+<option>Digital Electronics</option>
+<option>Computer Networks</option>
+<option>Database Management Systems</option>
+<option>Operating Systems</option>
+<option>Object Oriented Programming</option>
+</select>
+</div>
+
+<div>
+<label>Semester Duration (Weeks)</label>
+<input id="weeks" type="number" value="16" min="1">
+</div>
+
+<div>
+<label>Classes Per Week for This Subject</label>
+<input id="weekly" type="number" value="4" min="1">
+</div>
+
+<div>
+<label>Classes Attended</label>
+<input id="attended" type="number" value="" min="0" placeholder="Example: 42">
+</div>
+</div>
+
+<div class="note">
+The app calculates total semester classes automatically:
+<strong>Total Classes = Semester Weeks × Classes Per Week</strong>
+</div>
+
+<button onclick="calculateAttendance()">🚀 Calculate Attendance</button>
+</div>
+
+<div class="results" id="results">
+
+<div class="card">
+<h2>📊 Attendance Result</h2>
+
+<div class="stats">
+<div class="stat">
+<div class="small">Total Classes in Semester</div>
+<div class="value blue" id="totalClasses">0</div>
+</div>
+
+<div class="stat">
+<div class="small">Classes Attended</div>
+<div class="value green" id="attendedResult">0</div>
+</div>
+
+<div class="stat">
+<div class="small">Attendance Percentage</div>
+<div class="value yellow" id="percentage">0%</div>
+</div>
+</div>
+
+<div id="status" class="status"></div>
+
+<div class="progress-bg">
+<div id="progress" class="progress"></div>
+</div>
+</div>
+
+<div class="card">
+<h2>📚 Selected Details</h2>
+<div class="details">
+<div class="info"><span class="small">Department</span><b id="rDepartment">-</b></div>
+<div class="info"><span class="small">Semester</span><b id="rSemester">-</b></div>
+<div class="info"><span class="small">Section</span><b id="rSection">-</b></div>
+<div class="info"><span class="small">Subject</span><b id="rSubject">-</b></div>
+<div class="info"><span class="small">Semester Weeks</span><b id="rWeeks">-</b></div>
+<div class="info"><span class="small">Classes Per Week</span><b id="rWeekly">-</b></div>
+</div>
+</div>
+
+<div class="card">
+<h2>🧠 Smart Analysis</h2>
+<div class="analysis" id="analysis"></div>
+</div>
+
+</div>
+
+<div class="footer">AttendWise • Smart Attendance Prediction System</div>
+</div>
+
+<script>
+function calculateAttendance(){
+
+    const department = document.getElementById("department").value;
+    const semester = document.getElementById("semester").value;
+    const section = document.getElementById("section").value;
+    const subject = document.getElementById("subject").value;
+
+    const weeks = Number(document.getElementById("weeks").value);
+    const weekly = Number(document.getElementById("weekly").value);
+    const attended = Number(document.getElementById("attended").value);
+
+    if(!department || !semester || !section || !subject){
+        alert("Please select Department, Semester, Section and Subject.");
+        return;
+    }
+
+    if(weeks <= 0 || weekly <= 0 || attended < 0){
+        alert("Please enter valid semester and attendance details.");
+        return;
+    }
+
+    const totalClasses = weeks * weekly;
+
+    if(attended > totalClasses){
+        alert("Classes attended cannot be greater than total semester classes (" + totalClasses + ").");
+        return;
+    }
+
+    const percentage = (attended / totalClasses) * 100;
+
+    document.getElementById("results").style.display = "block";
+
+    document.getElementById("totalClasses").textContent = totalClasses;
+    document.getElementById("attendedResult").textContent = attended;
+    document.getElementById("percentage").textContent = percentage.toFixed(2) + "%";
+
+    document.getElementById("rDepartment").textContent = department;
+    document.getElementById("rSemester").textContent = semester;
+    document.getElementById("rSection").textContent = section;
+    document.getElementById("rSubject").textContent = subject;
+    document.getElementById("rWeeks").textContent = weeks;
+    document.getElementById("rWeekly").textContent = weekly;
+
+    document.getElementById("progress").style.width =
+        Math.min(percentage,100) + "%";
+
+    const status = document.getElementById("status");
+
+    if(percentage >= 75){
+        status.textContent = "✓ 75% Requirement Met";
+        status.className = "status safe";
+    }else{
+        status.textContent = "⚠ Below 75% Requirement";
+        status.className = "status danger";
+    }
+
+    const classesRemaining = totalClasses - attended;
+
+    let analysis =
+        "You have attended <b>" + attended +
+        "</b> out of <b>" + totalClasses +
+        "</b> total classes. Your current semester attendance is <b>" +
+        percentage.toFixed(2) + "%</b>.";
+
+    analysis += "<br><br>You have <b>" + classesRemaining +
+        "</b> classes remaining in the semester.";
+
+    if(percentage >= 75){
+        analysis += "<br><br>✅ Your attendance is currently at or above the 75% requirement.";
+    }else{
+        const needed = Math.ceil(
+            (0.75 * totalClasses) - attended
+        );
+
+        analysis += "<br><br>📌 To reach 75% based on the full semester total, you need at least <b>" +
+            Math.max(0,needed) + "</b> attended classes in total.";
+    }
+
+    document.getElementById("analysis").innerHTML = analysis;
+
+    document.getElementById("results").scrollIntoView({
+        behavior:"smooth"
+    });
+}
+</script>
+
+</body>
+</html>
